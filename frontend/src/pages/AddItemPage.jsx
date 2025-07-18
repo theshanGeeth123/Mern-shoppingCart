@@ -1,115 +1,113 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function AddItemPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
+  const [product, setProduct] = useState({
+    name: "",
+    description: "",
+    price: "",
+    url: "",
   });
 
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setProduct({ ...product, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { name, description, price } = formData;
+    const res = await fetch("http://localhost:5000/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(product),
+    });
 
-    if (!name || !description || !price) {
-      alert('Please fill all fields');
-      return;
-    }
-
-    try {
-      const res = await fetch('http://localhost:5000/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          description,
-          price: parseFloat(price),
-        }),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        alert('Product added successfully');
-        navigate('/cart'); // go back to cart page
-      } else {
-        alert('Failed to add product');
-      }
-    } catch (error) {
-      alert('Error adding product');
+    if (res.ok) {
+      setProduct({ name: "", description: "", price: "", url: "" });
+      navigate("/adminCart"); // 👈 redirect after success
+    } else {
+      alert("Failed to add product");
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold mb-6">Add New Item</h1>
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded shadow-md w-full max-w-md"
-      >
-        <label className="block mb-4">
-          <span className="text-gray-700">Name</span>
+    <div className="max-w-md mx-auto mt-12 bg-white p-8 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-gray-900 text-center">
+        Add New Product
+      </h2>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label htmlFor="name" className="block mb-1 font-semibold text-gray-700">
+            Product Name
+          </label>
           <input
-            type="text"
+            id="name"
             name="name"
-            className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            value={formData.name}
+            value={product.name}
             onChange={handleChange}
+            placeholder="Enter product name"
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
           />
-        </label>
-
-        <label className="block mb-4">
-          <span className="text-gray-700">Description</span>
-          <textarea
-            name="description"
-            className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            rows="3"
-            value={formData.description}
-            onChange={handleChange}
-          />
-        </label>
-
-        <label className="block mb-4">
-          <span className="text-gray-700">Price ($)</span>
-          <input
-            type="number"
-            name="price"
-            step="0.01"
-            min="0"
-            className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            value={formData.price}
-            onChange={handleChange}
-          />
-        </label>
-
-        <div className="flex justify-between">
-          <button
-            type="button"
-            onClick={() => navigate('/cart')}
-            className="px-4 py-2 bg-gray-400 rounded hover:bg-gray-500"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            Add Item
-          </button>
         </div>
+
+        <div>
+          <label htmlFor="description" className="block mb-1 font-semibold text-gray-700">
+            Description
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            value={product.description}
+            onChange={handleChange}
+            placeholder="Enter product description"
+            required
+            rows={4}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="price" className="block mb-1 font-semibold text-gray-700">
+            Price ($)
+          </label>
+          <input
+            id="price"
+            name="price"
+            type="number"
+            min="0"
+            step="0.01"
+            value={product.price}
+            onChange={handleChange}
+            placeholder="Enter price"
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="url" className="block mb-1 font-semibold text-gray-700">
+            Image URL
+          </label>
+          <input
+            id="url"
+            name="url"
+            type="url"
+            value={product.url}
+            onChange={handleChange}
+            placeholder="Enter image URL"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="w-full py-3 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition"
+        >
+          Add Product
+        </button>
       </form>
     </div>
   );

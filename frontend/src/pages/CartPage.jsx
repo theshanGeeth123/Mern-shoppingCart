@@ -5,9 +5,8 @@ function CartPage() {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
 
-  // Fetch products from backend API
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')  // update if your backend URL is different
+    fetch('http://localhost:5000/api/products') // Change URL if needed
       .then(res => res.json())
       .then(data => {
         if (data.success) {
@@ -19,7 +18,6 @@ function CartPage() {
       });
   }, []);
 
-  // Handle delete product
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this item?')) return;
 
@@ -39,53 +37,66 @@ function CartPage() {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-gray-100">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Shopping Cart (Admin)</h1>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
+        <h1 className="text-4xl font-extrabold text-gray-900 mb-4 sm:mb-0">
+          Shopping Cart <span className="text-green-600">(Admin)</span>
+        </h1>
         <Link
           to="/cart/new"
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+          className="inline-block px-6 py-2 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700 transition"
         >
-          Add New Item
+          + Add New Item
         </Link>
       </div>
 
       {products.length === 0 ? (
-        <p className="text-gray-600">No items found.</p>
+        <p className="text-gray-500 text-center text-lg mt-12">No items found.</p>
       ) : (
-        <table className="w-full bg-white shadow rounded">
-          <thead>
-            <tr className="border-b">
-              <th className="p-3 text-left">Name</th>
-              <th className="p-3 text-left">Description</th>
-              <th className="p-3 text-left">Price ($)</th>
-              <th className="p-3 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map(({ _id, name, description, price }) => (
-              <tr key={_id} className="border-b hover:bg-gray-50">
-                <td className="p-3">{name}</td>
-                <td className="p-3">{description}</td>
-                <td className="p-3">{price.toFixed(2)}</td>
-                <td className="p-3 flex justify-center gap-4">
-                  <button
-                    onClick={() => navigate(`/cart/edit/${_id}`)}
-                    className="px-3 py-1 bg-yellow-400 text-black rounded hover:bg-yellow-500"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(_id)}
-                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {products.map(({ _id, name, description, price, url }) => (
+            <div
+              key={_id}
+              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col"
+            >
+              <div className="h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+                {url ? (
+                  <img
+                    src={url}
+                    alt={name}
+                    className="object-cover w-full h-full"
+                  />
+                ) : (
+                  <span className="text-gray-400 italic">No Image</span>
+                )}
+              </div>
+
+              <div className="p-4 flex flex-col flex-grow">
+                <h2 className="text-lg font-semibold text-gray-900 mb-2 truncate">{name}</h2>
+                <p className="text-gray-700 text-sm flex-grow">{description}</p>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-green-600 font-bold text-lg">${price.toFixed(2)}</span>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => navigate(`/cart/edit/${_id}`)}
+                      className="px-3 py-1 bg-yellow-400 text-black rounded-md shadow hover:bg-yellow-500 transition"
+                      title="Edit"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(_id)}
+                      className="px-3 py-1 bg-red-600 text-white rounded-md shadow hover:bg-red-700 transition"
+                      title="Delete"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

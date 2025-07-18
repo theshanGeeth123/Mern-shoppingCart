@@ -6,7 +6,7 @@ export const addProduct = async(req,res)=>{
 
     const product = req.body;
 
-    if(!product.name || !product.description || !product.price){
+    if(!product.name || !product.description || !product.price ||!product.url){
         
         return res.status(400).json({success:false,message:"Please provide all fields"});
 
